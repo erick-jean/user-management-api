@@ -1,10 +1,23 @@
 {
   "name": "user-management-api",
   "version": "0.0.1",
-  "description": "",
-  "author": "",
   "private": true,
+  "description": "<p align=\"center\">\r   <a href=\"http://nestjs.com/\" target=\"blank\"><img src=\"https://nestjs.com/img/logo-small.svg\" width=\"120\" alt=\"Nest Logo\" /></a>\r </p>",
+  "homepage": "https://github.com/erick-jean/user-management-api#readme",
+  "bugs": {
+    "url": "https://github.com/erick-jean/user-management-api/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/erick-jean/user-management-api.git"
+  },
   "license": "UNLICENSED",
+  "author": "",
+  "type": "commonjs",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
   "scripts": {
     "build": "nest build",
     "format": "prettier --write \"src/**/*.ts\" \"test/**/*.ts\"",
