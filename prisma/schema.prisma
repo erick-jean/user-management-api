@@ -18,12 +18,12 @@ model User {
   email       String   @unique @db.VarChar(255)
   password    String   @db.VarChar(255)
   role        String   @default("user") @db.VarChar(20)
-  isActive    Boolean  @default(true) @map("is_active")
+  isActive    Boolean  @default(true)
 
-  createdAt   DateTime @default(now()) @map("created_at")
-  updatedAt   DateTime @updatedAt @map("updated_at")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
 
-  lastLogin   DateTime? @map("last_login")
+  lastLogin   DateTime?
 
   @@map("users")
 }
