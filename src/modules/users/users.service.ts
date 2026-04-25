@@ -60,6 +60,23 @@ export class UsersService {
     return this.toResponse(user);
   }
 
+  async remove(id: string): Promise<void> {
+    try {
+      await this.prisma.user.delete({
+        where: { id },
+      });
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('User not found');
+      }
+
+      throw error;
+    }
+  }
+
   async findAll(
     page: number,
     limit: number,

@@ -108,5 +108,10 @@ export class UsersController {
   update() {}
 
   @Delete(':id')
-  remove() {}
+  @ApiOkResponse({
+    description: 'Usuario removido com sucesso',
+  })
+  remove(@Param('id', new ParseUUIDPipe()) id: string): Promise<void> {
+    return this.usersService.remove(id);
+  }
 }
