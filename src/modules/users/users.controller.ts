@@ -8,15 +8,15 @@ import {
   Patch,
   Post,
   Query,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import {
   ApiQuery,
   ApiTags,
   ApiOperation,
   ApiOkResponse,
-  ApiInternalServerErrorResponse,
   ApiParam,
-  ApiNotFoundResponse,
+  ApiBadRequestResponse
 } from '@nestjs/swagger';
 import { PaginatedUsersResponseDto } from './dto/paginated-users-response.dto';
 import { UsersService } from './users.service';
@@ -37,10 +37,22 @@ export class UsersController {
     description: 'Lista paginada de usuarios retornada com sucesso',
     type: PaginatedUsersResponseDto,
   })
-  @ApiQuery({ name: 'page', required: false, example: 1 })
-  @ApiQuery({ name: 'limit', required: false, example: 10 })
-  @ApiInternalServerErrorResponse({
-    description: 'Erro interno no servidor',
+
+  // Paginação
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    example: 1,
+    description: 'Numero da pagina',
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    example: 10,
+    description: 'Numero de itens por pagina (max 100)',
+  })
+  @ApiBadRequestResponse({
+    description: 'Parametros de paginacao invalidos',
   })
   findAll(
     // Define valores padrão e garante tipagem numérica
@@ -62,15 +74,10 @@ export class UsersController {
   @ApiOkResponse({
     description: 'Usuário encontrado',
     type: UserResponseDto,
-    isArray: false,
   })
-  @ApiNotFoundResponse({
-    description: 'Usuário não encontrado',
-  })
-  @ApiInternalServerErrorResponse({
-    description: 'Erro interno no servidor',
-  })
-  findOne(@Param('id') id: string): Promise<UserResponseDto> {
+  findOne(
+    @Param('id', new ParseUUIDPipe()) id: string,
+  ): Promise<UserResponseDto> {
     return this.usersService.findOne(id);
   }
 

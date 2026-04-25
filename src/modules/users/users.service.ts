@@ -1,9 +1,8 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Prisma } from '../../../generated/prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { PaginatedUsersResponseDto } from './dto/paginated-users-response.dto';
 import { UserResponseDto } from './dto/user-response.dto';
-import { NotFoundException } from '@nestjs/common';
 
 const userListSelect = {
   id: true,
@@ -16,6 +15,11 @@ const userListSelect = {
   lastLogin: true,
 } satisfies Prisma.UserSelect;
 
+// Constantes para paginação
+const DEFAULT_PAGE = 1;
+const DEFAULT_LIMIT = 10;
+const MAX_LIMIT = 100;
+
 type UserListItem = Prisma.UserGetPayload<{
   select: typeof userListSelect;
 }>;
@@ -24,9 +28,12 @@ type UserListItem = Prisma.UserGetPayload<{
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(page: number, limit: number): Promise<PaginatedUsersResponseDto> {
-    const sanitizedPage = Math.max(1, page);
-    const sanitizedLimit = Math.min(Math.max(1, limit), 100);
+  async findAll(
+    page: number,
+    limit: number,
+  ): Promise<PaginatedUsersResponseDto> {
+    const sanitizedPage = Math.max(DEFAULT_PAGE, page);
+    const sanitizedLimit = Math.min(Math.max(DEFAULT_LIMIT, limit), MAX_LIMIT);
     const skip = (sanitizedPage - 1) * sanitizedLimit;
 
     const [totalItems, users] = await this.prisma.$transaction([
