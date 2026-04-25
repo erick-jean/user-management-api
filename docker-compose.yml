@@ -1,9 +1,7 @@
-version: '3.9'
-
 services:
   db:
     image: postgres:15-alpine
-    container_name: meu_projeto_postgres
+    container_name: user-management-db
     restart: unless-stopped
 
     environment:
@@ -18,7 +16,7 @@ services:
       - postgres_data:/var/lib/postgresql/data
 
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
       interval: 5s
       timeout: 5s
       retries: 5
