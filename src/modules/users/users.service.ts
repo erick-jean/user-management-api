@@ -102,7 +102,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException('Usuario nao encontrado');
+      throw new NotFoundException('User not found');
     }
 
     return this.toResponse(user);
