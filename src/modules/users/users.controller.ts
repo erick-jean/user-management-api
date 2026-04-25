@@ -30,24 +30,20 @@ export class UsersController {
   @Get()
   @ApiOperation({
     summary: 'Listar usuarios',
-    description: 'Retorna uma lista paginada de usuarios cadastrados no sistema',
+    description:
+      'Retorna uma lista paginada de usuarios cadastrados no sistema',
   })
-  
-  // Resposta de sucesso status 200
   @ApiOkResponse({
     description: 'Lista paginada de usuarios retornada com sucesso',
     type: PaginatedUsersResponseDto,
   })
-
-  // Paginação
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
-
-  // Respostas de erro status 500
   @ApiInternalServerErrorResponse({
     description: 'Erro interno no servidor',
   })
   findAll(
+    // Define valores padrão e garante tipagem numérica
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ): Promise<PaginatedUsersResponseDto> {
