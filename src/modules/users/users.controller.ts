@@ -4,27 +4,31 @@ import {
   DefaultValuePipe,
   Delete,
   Get,
+  HttpCode,
+  HttpStatus,
   Param,
   ParseIntPipe,
+  ParseUUIDPipe,
   Patch,
   Post,
   Query,
-  ParseUUIDPipe,
 } from '@nestjs/common';
 import {
+  ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiNoContentResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
   ApiQuery,
   ApiTags,
-  ApiOperation,
-  ApiOkResponse,
-  ApiParam,
-  ApiBadRequestResponse,
 } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PaginatedUsersResponseDto } from './dto/paginated-users-response.dto';
-import { UsersService } from './users.service';
 import { UserResponseDto } from './dto/user-response.dto';
+import { UsersService } from './users.service';
 
 @ApiTags('users')
 @Controller('users')
@@ -33,33 +37,29 @@ export class UsersController {
 
   @Get()
   @ApiOperation({
-    summary: 'Listar usuarios',
-    description:
-      'Retorna uma lista paginada de usuarios cadastrados no sistema',
+    summary: 'List users',
+    description: 'Returns a paginated list of users registered in the system',
   })
   @ApiOkResponse({
-    description: 'Lista paginada de usuarios retornada com sucesso',
+    description: 'Paginated list of users returned successfully',
     type: PaginatedUsersResponseDto,
   })
-
-  // Paginação
   @ApiQuery({
     name: 'page',
     required: false,
     example: 1,
-    description: 'Numero da pagina',
+    description: 'Page number',
   })
   @ApiQuery({
     name: 'limit',
     required: false,
     example: 10,
-    description: 'Numero de itens por pagina (max 100)',
+    description: 'Number of items per page (max 100)',
   })
   @ApiBadRequestResponse({
-    description: 'Parametros de paginacao invalidos',
+    description: 'Invalid pagination parameters',
   })
   findAll(
-    // Define valores padrão e garante tipagem numérica
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
   ): Promise<PaginatedUsersResponseDto> {
@@ -68,16 +68,22 @@ export class UsersController {
 
   @Get(':id')
   @ApiOperation({
-    summary: 'Buscar usuário por ID',
-    description: 'Retorna um usuário específico com base no ID fornecido',
+    summary: 'Get user by ID',
+    description: 'Returns a specific user based on the provided ID',
   })
   @ApiParam({
     name: 'id',
-    description: 'ID do usuário (UUID)',
+    description: 'User ID (UUID)',
   })
   @ApiOkResponse({
-    description: 'Usuário encontrado',
+    description: 'User found',
     type: UserResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid ID',
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
   })
   findOne(
     @Param('id', new ParseUUIDPipe()) id: string,
@@ -87,18 +93,18 @@ export class UsersController {
 
   @Post()
   @ApiOperation({
-    summary: 'Criar usuario',
-    description: 'Cria um novo usuario no sistema',
+    summary: 'Create user',
+    description: 'Creates a new user in the system',
   })
   @ApiCreatedResponse({
-    description: 'Usuario criado com sucesso',
+    description: 'User created successfully',
     type: UserResponseDto,
   })
   @ApiBadRequestResponse({
-    description: 'Dados invalidos para criacao do usuario',
+    description: 'Invalid data for user creation',
   })
   @ApiConflictResponse({
-    description: 'Ja existe um usuario com este email',
+    description: 'A user with this email already exists',
   })
   create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
     return this.usersService.create(createUserDto);
@@ -108,8 +114,19 @@ export class UsersController {
   update() {}
 
   @Delete(':id')
-  @ApiOkResponse({
-    description: 'Usuario removido com sucesso',
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({
+    summary: 'Remove user',
+    description: 'Removes a user from the system by ID',
+  })
+  @ApiNoContentResponse({
+    description: 'User removed successfully',
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid ID',
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
   })
   remove(@Param('id', new ParseUUIDPipe()) id: string): Promise<void> {
     return this.usersService.remove(id);
