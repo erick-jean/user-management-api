@@ -4,6 +4,7 @@ import {
   IsEmail,
   IsOptional,
   IsString,
+  IsIn,
   MaxLength,
   MinLength,
 } from 'class-validator';
@@ -26,9 +27,14 @@ export class CreateUserDto {
   @MaxLength(255)
   password!: string;
 
-  @ApiPropertyOptional({ example: 'user', default: 'user' })
+  @ApiPropertyOptional({
+    example: 'user',
+    default: 'user',
+    enum: ['user', 'admin'],
+  })
   @IsOptional()
   @IsString()
+  @IsIn(['user', 'admin'])
   @MaxLength(20)
   role?: string;
 
