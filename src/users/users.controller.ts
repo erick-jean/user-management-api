@@ -1,21 +1,55 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiOperation, ApiTags, ApiOkResponse } from '@nestjs/swagger';
-import { UserResponseDto } from './dto/user-response.dto';
-import { UsersService } from './users.service';
+import { Controller, Get, Post, Patch, Delete } from '@nestjs/common';
+// import {
+//   ApiTags,
+//   ApiOperation,
+//   ApiOkResponse,
+//   ApiInternalServerErrorResponse,
+// } from '@nestjs/swagger';
+// import { UsersService } from './users.service';
+// import { UserResponseDto } from './dto/user-response.dto';
 
-@ApiTags('users')
+// @ApiTags('users')
+// @Controller('users')
+// export class UsersController {
+//   constructor(private readonly usersService: UsersService) {}
+
+//   @Get()
+//   @ApiOperation({
+//     summary: 'Listar usuários',
+//     description: 'Retorna uma lista de usuários cadastrados no sistema',
+//   })
+//   @ApiOkResponse({
+//     description: 'Lista de usuários retornada com sucesso',
+//     type: UserResponseDto,
+//     isArray: true,
+//   })
+//   @ApiInternalServerErrorResponse({
+//     description: 'Erro interno no servidor',
+//     example: {
+//       statusCode: 500,
+//       message: 'Internal server error',
+//     },
+//   })
+//   findAll(): Promise<UserResponseDto[]> {
+//     return this.usersService.findAll();
+//   }
+// }
+
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Listar usuarios' })
-  @ApiOkResponse({
-    description: 'Lista de usuarios',
-    type: UserResponseDto,
-    isArray: true,
-  })
-  findAll(): Promise<UserResponseDto[]> {
-    return this.usersService.findAll();
-  }
+  findAll() {}
+
+  @Get(':id')
+  findOne() {}
+
+  @Post()
+  create() {}
+
+  @Patch(':id')
+  update() {}
+
+  @Delete(':id')
+  remove() {}
 }
