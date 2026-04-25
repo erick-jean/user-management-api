@@ -1,6 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
+import * as bcrypt from 'bcrypt';
 import { Prisma } from '../../../generated/prisma/client';
 import { PrismaService } from '../../database/prisma.service';
+import { CreateUserDto } from './dto/create-user.dto';
 import { PaginatedUsersResponseDto } from './dto/paginated-users-response.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 
@@ -27,6 +33,32 @@ type UserListItem = Prisma.UserGetPayload<{
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
+    const existingUser = await this.prisma.user.findUnique({
+      where: { email: createUserDto.email },
+      select: { id: true },
+    });
+
+    if (existingUser) {
+      throw new ConflictException('Email already in use');
+    }
+
+    const hashedPassword = await bcrypt.hash(createUserDto.password, 10);
+
+    const user = await this.prisma.user.create({
+      data: {
+        name: createUserDto.name,
+        email: createUserDto.email,
+        password: hashedPassword,
+        role: createUserDto.role ?? 'user',
+        isActive: createUserDto.isActive ?? true,
+      },
+      select: userListSelect,
+    });
+
+    return this.toResponse(user);
+  }
 
   async findAll(
     page: number,
@@ -70,7 +102,7 @@ export class UsersService {
     });
 
     if (!user) {
-      throw new NotFoundException('Usuário não encontrado');
+      throw new NotFoundException('Usuario nao encontrado');
     }
 
     return this.toResponse(user);

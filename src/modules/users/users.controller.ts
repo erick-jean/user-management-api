@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   DefaultValuePipe,
   Delete,
@@ -11,13 +12,16 @@ import {
   ParseUUIDPipe,
 } from '@nestjs/common';
 import {
+  ApiConflictResponse,
+  ApiCreatedResponse,
   ApiQuery,
   ApiTags,
   ApiOperation,
   ApiOkResponse,
   ApiParam,
-  ApiBadRequestResponse
+  ApiBadRequestResponse,
 } from '@nestjs/swagger';
+import { CreateUserDto } from './dto/create-user.dto';
 import { PaginatedUsersResponseDto } from './dto/paginated-users-response.dto';
 import { UsersService } from './users.service';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -82,7 +86,23 @@ export class UsersController {
   }
 
   @Post()
-  create() {}
+  @ApiOperation({
+    summary: 'Criar usuario',
+    description: 'Cria um novo usuario no sistema',
+  })
+  @ApiCreatedResponse({
+    description: 'Usuario criado com sucesso',
+    type: UserResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Dados invalidos para criacao do usuario',
+  })
+  @ApiConflictResponse({
+    description: 'Ja existe um usuario com este email',
+  })
+  create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
+    return this.usersService.create(createUserDto);
+  }
 
   @Patch(':id')
   update() {}
