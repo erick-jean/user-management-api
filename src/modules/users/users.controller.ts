@@ -32,12 +32,18 @@ export class UsersController {
     summary: 'Listar usuarios',
     description: 'Retorna uma lista paginada de usuarios cadastrados no sistema',
   })
+  
+  // Resposta de sucesso status 200
   @ApiOkResponse({
     description: 'Lista paginada de usuarios retornada com sucesso',
     type: PaginatedUsersResponseDto,
   })
+
+  // Paginação
   @ApiQuery({ name: 'page', required: false, example: 1 })
   @ApiQuery({ name: 'limit', required: false, example: 10 })
+
+  // Respostas de erro status 500
   @ApiInternalServerErrorResponse({
     description: 'Erro interno no servidor',
   })
