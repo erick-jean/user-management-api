@@ -1,6 +1,7 @@
 import { Controller, Get } from '@nestjs/common';
+import { ApiOperation, ApiTags, ApiOkResponse } from '@nestjs/swagger';
+import { UserResponseDto } from './dto/user-response.dto';
 import { UsersService } from './users.service';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
 @ApiTags('users')
 @Controller('users')
@@ -8,8 +9,13 @@ export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @Get()
-  @ApiOperation({ summary: 'Listar usuários' })
-  findAll() {
+  @ApiOperation({ summary: 'Listar usuarios' })
+  @ApiOkResponse({
+    description: 'Lista de usuarios',
+    type: UserResponseDto,
+    isArray: true,
+  })
+  findAll(): Promise<UserResponseDto[]> {
     return this.usersService.findAll();
   }
 }
