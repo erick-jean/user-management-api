@@ -27,10 +27,6 @@ export class UsersController {
   })
   @ApiInternalServerErrorResponse({
     description: 'Erro interno no servidor',
-    example: {
-      statusCode: 500,
-      message: 'Internal server error',
-    },
   })
   findAll(): Promise<UserResponseDto[]> {
     return this.usersService.findAll();
@@ -52,6 +48,9 @@ export class UsersController {
   })
   @ApiNotFoundResponse({
     description: 'Usuário não encontrado',
+  })
+  @ApiInternalServerErrorResponse({
+    description: 'Erro interno no servidor',
   })
   findOne(@Param('id') id: string): Promise<UserResponseDto> {
     return this.usersService.findOne(id);
