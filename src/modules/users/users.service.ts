@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { Prisma } from '../../../generated/prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { UserResponseDto } from './dto/user-response.dto';
+import { NotFoundException } from '@nestjs/common';
 
 const userListSelect = {
   id: true,
@@ -31,6 +32,19 @@ export class UsersService {
     });
 
     return users.map((user) => this.toResponse(user));
+  }
+
+  async findOne(id: string): Promise<UserResponseDto> {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+      select: userListSelect,
+    });
+
+    if (!user) {
+      throw new NotFoundException('Usuário não encontrado');
+    }
+
+    return this.toResponse(user);
   }
 
   private toResponse(user: UserListItem): UserResponseDto {
