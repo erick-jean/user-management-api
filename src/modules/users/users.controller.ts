@@ -12,14 +12,14 @@ import { Controller, Get, Post, Patch, Delete } from '@nestjs/common';
 // @Controller('users')
 // export class UsersController {
 //   constructor(private readonly usersService: UsersService) {}
-
+//
 //   @Get()
 //   @ApiOperation({
-//     summary: 'Listar usuários',
-//     description: 'Retorna uma lista de usuários cadastrados no sistema',
+//     summary: 'Listar usuarios',
+//     description: 'Retorna uma lista de usuarios cadastrados no sistema',
 //   })
 //   @ApiOkResponse({
-//     description: 'Lista de usuários retornada com sucesso',
+//     description: 'Lista de usuarios retornada com sucesso',
 //     type: UserResponseDto,
 //     isArray: true,
 //   })
@@ -37,7 +37,6 @@ import { Controller, Get, Post, Patch, Delete } from '@nestjs/common';
 
 @Controller('users')
 export class UsersController {
-
   @Get()
   findAll() {}
 

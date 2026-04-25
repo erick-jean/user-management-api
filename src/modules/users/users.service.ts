@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { Prisma } from '../../generated/prisma/client';
-import { PrismaService } from '../database/prisma.service';
+import { Prisma } from '../../../generated/prisma/client';
+import { PrismaService } from '../../database/prisma.service';
 import { UserResponseDto } from './dto/user-response.dto';
 
 const userListSelect = {
