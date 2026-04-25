@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Param } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Delete, Param, Query } from '@nestjs/common';
 import {
   ApiTags,
   ApiOperation,
@@ -7,6 +7,8 @@ import {
   ApiParam,
   ApiNotFoundResponse,
 } from '@nestjs/swagger';
+import { PaginatedUsersResponseDto } from './dto/paginated-users-response.dto';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
 import { UsersService } from './users.service';
 import { UserResponseDto } from './dto/user-response.dto';
 
@@ -18,18 +20,19 @@ export class UsersController {
   @Get()
   @ApiOperation({
     summary: 'Listar usuarios',
-    description: 'Retorna uma lista de usuarios cadastrados no sistema',
+    description: 'Retorna uma lista paginada de usuarios cadastrados no sistema',
   })
   @ApiOkResponse({
-    description: 'Lista de usuarios retornada com sucesso',
-    type: UserResponseDto,
-    isArray: true,
+    description: 'Lista paginada de usuarios retornada com sucesso',
+    type: PaginatedUsersResponseDto,
   })
   @ApiInternalServerErrorResponse({
     description: 'Erro interno no servidor',
   })
-  findAll(): Promise<UserResponseDto[]> {
-    return this.usersService.findAll();
+  findAll(
+    @Query() pagination: PaginationQueryDto,
+  ): Promise<PaginatedUsersResponseDto> {
+    return this.usersService.findAll(pagination);
   }
 
   @Get(':id')

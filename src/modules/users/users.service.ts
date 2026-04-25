@@ -1,6 +1,8 @@
 import { Injectable } from '@nestjs/common';
 import { Prisma } from '../../../generated/prisma/client';
 import { PrismaService } from '../../database/prisma.service';
+import { PaginationQueryDto } from './dto/pagination-query.dto';
+import { PaginatedUsersResponseDto } from './dto/paginated-users-response.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { NotFoundException } from '@nestjs/common';
 
@@ -23,15 +25,37 @@ type UserListItem = Prisma.UserGetPayload<{
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findAll(): Promise<UserResponseDto[]> {
-    const users = await this.prisma.user.findMany({
-      select: userListSelect,
-      orderBy: {
-        createdAt: 'desc',
-      },
-    });
+  async findAll(
+    pagination: PaginationQueryDto,
+  ): Promise<PaginatedUsersResponseDto> {
+    const { page, limit } = pagination;
+    const skip = (page - 1) * limit;
 
-    return users.map((user) => this.toResponse(user));
+    const [totalItems, users] = await this.prisma.$transaction([
+      this.prisma.user.count(),
+      this.prisma.user.findMany({
+        skip,
+        take: limit,
+        select: userListSelect,
+        orderBy: {
+          createdAt: 'desc',
+        },
+      }),
+    ]);
+
+    const totalPages = Math.ceil(totalItems / limit);
+
+    return {
+      data: users.map((user) => this.toResponse(user)),
+      meta: {
+        page,
+        limit,
+        totalItems,
+        totalPages,
+        hasNextPage: page < totalPages,
+        hasPreviousPage: page > 1,
+      },
+    };
   }
 
   async findOne(id: string): Promise<UserResponseDto> {
