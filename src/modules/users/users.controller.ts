@@ -27,6 +27,7 @@ import {
 } from '@nestjs/swagger';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PaginatedUsersResponseDto } from './dto/paginated-users-response.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 import { UsersService } from './users.service';
 
@@ -111,7 +112,33 @@ export class UsersController {
   }
 
   @Patch(':id')
-  update() {}
+  @ApiOperation({
+    summary: 'Update user',
+    description: 'Updates an existing user in the system',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'User ID (UUID)',
+  })
+  @ApiOkResponse({
+    description: 'User updated successfully',
+    type: UserResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'Invalid ID or invalid data for user update',
+  })
+  @ApiConflictResponse({
+    description: 'A user with this email already exists',
+  })
+  @ApiNotFoundResponse({
+    description: 'User not found',
+  })
+  update(
+    @Param('id', new ParseUUIDPipe()) id: string,
+    @Body() updateUserDto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
+    return this.usersService.update(id, updateUserDto);
+  }
 
   @Delete(':id')
   @HttpCode(HttpStatus.NO_CONTENT)

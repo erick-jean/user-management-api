@@ -8,6 +8,7 @@ import { Prisma } from '../../../generated/prisma/client';
 import { PrismaService } from '../../database/prisma.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PaginatedUsersResponseDto } from './dto/paginated-users-response.dto';
+import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
 
 const userListSelect = {
@@ -58,6 +59,45 @@ export class UsersService {
     });
 
     return this.toResponse(user);
+  }
+
+  async update(id: string, updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
+    try {
+      const data: Prisma.UserUpdateInput = {
+        name: updateUserDto.name,
+        email: updateUserDto.email,
+        role: updateUserDto.role,
+        isActive: updateUserDto.isActive,
+      };
+
+      if (updateUserDto.password) {
+        data.password = await bcrypt.hash(updateUserDto.password, 10);
+      }
+
+      const user = await this.prisma.user.update({
+        where: { id },
+        data,
+        select: userListSelect,
+      });
+
+      return this.toResponse(user);
+    } catch (error) {
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('User not found');
+      }
+
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2002'
+      ) {
+        throw new ConflictException('Email already in use');
+      }
+
+      throw error;
+    }
   }
 
   async remove(id: string): Promise<void> {
