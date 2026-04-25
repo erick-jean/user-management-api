@@ -16,7 +16,7 @@ export class AuthService {
       where: { email: loginDto.email },
     });
 
-    if (!user) {
+    if (!user || !user.isActive) {
       throw new UnauthorizedException('Invalid credentials');
     }
 
