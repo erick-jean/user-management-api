@@ -6,6 +6,10 @@ import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
+  app.getHttpAdapter().get('/', (req, res) => {
+    res.redirect('/api');
+  });
+
   const config = new DocumentBuilder()
     .setTitle('User API')
     .setDescription('API de gerenciamento de usuários')
