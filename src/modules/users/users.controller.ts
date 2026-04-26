@@ -96,13 +96,17 @@ export class UsersController {
   @ApiBadRequestResponse({
     description: 'Invalid ID',
   })
+  @ApiForbiddenResponse({
+    description: 'You can only access your own account unless you are an admin',
+  })
   @ApiNotFoundResponse({
     description: 'User not found',
   })
   findOne(
     @Param('id', new ParseUUIDPipe()) id: string,
+    @CurrentUser() currentUser: AuthenticatedUser,
   ): Promise<UserResponseDto> {
-    return this.usersService.findOne(id);
+    return this.usersService.findOne(id, currentUser);
   }
 
   @Post()

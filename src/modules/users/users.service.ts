@@ -199,7 +199,19 @@ export class UsersService {
     };
   }
 
-  async findOne(id: string): Promise<UserResponseDto> {
+  async findOne(
+    id: string,
+    currentUser: AuthenticatedUser,
+  ): Promise<UserResponseDto> {
+    const isAdmin = currentUser.role === UserRole.ADMIN;
+    const isSelf = currentUser.userId === id;
+
+    if (!isAdmin && !isSelf) {
+      throw new ForbiddenException(
+        'You can only access your own account',
+      );
+    }
+
     const user = await this.prisma.user.findUnique({
       where: { id },
       select: userListSelect,
