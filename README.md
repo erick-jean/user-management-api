@@ -44,10 +44,15 @@ Projeto desenvolvido com foco em boas práticas de backend, arquitetura modular 
 
 ---
 
-## 📂 Estrutura do projeto
-src/
-├── auth/ # Autenticação (login, JWT, guards)
-├── users/ # Módulo de usuários
-├── prisma/ # Configuração do Prisma
-├── common/ # Utilitários, filtros, decorators
-└── main.ts # Bootstrap da aplicação
+## ⚙️ Configuração do ambiente
+
+### 1. Clone o repositório
+
+```bash
+git clone https://github.com/erick-jean/user-management-api.git
+cd user-management-api
+
+## 2. Instale as dependências
+
+```bash
+npm install
