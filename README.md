@@ -45,3 +45,9 @@ Projeto desenvolvido com foco em boas práticas de backend, arquitetura modular 
 ---
 
 ## 📂 Estrutura do projeto
+src/
+├── auth/ # Autenticação (login, JWT, guards)
+├── users/ # Módulo de usuários
+├── prisma/ # Configuração do Prisma
+├── common/ # Utilitários, filtros, decorators
+└── main.ts # Bootstrap da aplicação
