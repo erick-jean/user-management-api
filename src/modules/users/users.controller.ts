@@ -110,6 +110,8 @@ export class UsersController {
   }
 
   @Post()
+  @Roles(UserRole.ADMIN)
+  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({
     summary: 'Create user',
     description: 'Creates a new user in the system',

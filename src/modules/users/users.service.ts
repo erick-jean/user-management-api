@@ -207,9 +207,7 @@ export class UsersService {
     const isSelf = currentUser.userId === id;
 
     if (!isAdmin && !isSelf) {
-      throw new ForbiddenException(
-        'You can only access your own account',
-      );
+      throw new ForbiddenException('You can only access your own account');
     }
 
     const user = await this.prisma.user.findUnique({
