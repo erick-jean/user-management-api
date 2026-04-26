@@ -1,15 +1,18 @@
 import {
   ConflictException,
+  ForbiddenException,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { Prisma } from '../../../generated/prisma/client';
 import { PrismaService } from '../../database/prisma.service';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PaginatedUsersResponseDto } from './dto/paginated-users-response.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserResponseDto } from './dto/user-response.dto';
+import { UserRole } from './enums/user-role.enum';
 
 const userListSelect = {
   id: true,
@@ -61,13 +64,33 @@ export class UsersService {
     return this.toResponse(user);
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto): Promise<UserResponseDto> {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+    currentUser: AuthenticatedUser,
+  ): Promise<UserResponseDto> {
+    const isAdmin = currentUser.role === UserRole.ADMIN;
+    const isSelf = currentUser.userId === id;
+
+    if (!isAdmin && !isSelf) {
+      throw new ForbiddenException('You can only update your own account');
+    }
+
+    if (
+      !isAdmin &&
+      (updateUserDto.role !== undefined || updateUserDto.isActive !== undefined)
+    ) {
+      throw new ForbiddenException(
+        'You are not allowed to update role or active status',
+      );
+    }
+
     try {
       const data: Prisma.UserUpdateInput = {
         name: updateUserDto.name,
         email: updateUserDto.email,
-        role: updateUserDto.role,
-        isActive: updateUserDto.isActive,
+        role: isAdmin ? updateUserDto.role : undefined,
+        isActive: isAdmin ? updateUserDto.isActive : undefined,
       };
 
       if (updateUserDto.password) {
@@ -120,7 +143,31 @@ export class UsersService {
   async findAll(
     page: number,
     limit: number,
+    currentUser: AuthenticatedUser,
   ): Promise<PaginatedUsersResponseDto> {
+    if (currentUser.role !== UserRole.ADMIN) {
+      const user = await this.prisma.user.findUnique({
+        where: { id: currentUser.userId },
+        select: userListSelect,
+      });
+
+      if (!user) {
+        throw new NotFoundException('User not found');
+      }
+
+      return {
+        data: [this.toResponse(user)],
+        meta: {
+          page: 1,
+          limit: 1,
+          totalItems: 1,
+          totalPages: 1,
+          hasNextPage: false,
+          hasPreviousPage: false,
+        },
+      };
+    }
+
     const sanitizedPage = Math.max(DEFAULT_PAGE, page);
     const sanitizedLimit = Math.min(Math.max(DEFAULT_LIMIT, limit), MAX_LIMIT);
     const skip = (sanitizedPage - 1) * sanitizedLimit;

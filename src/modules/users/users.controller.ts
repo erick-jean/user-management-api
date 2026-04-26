@@ -14,9 +14,11 @@ import {
   Query,
 } from '@nestjs/common';
 import {
+  ApiBearerAuth,
   ApiBadRequestResponse,
   ApiConflictResponse,
   ApiCreatedResponse,
+  ApiForbiddenResponse,
   ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -25,6 +27,7 @@ import {
   ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
+import { CurrentUser } from '../auth/decorators/current-user.decorator';
 import { CreateUserDto } from './dto/create-user.dto';
 import { PaginatedUsersResponseDto } from './dto/paginated-users-response.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
@@ -35,7 +38,7 @@ import { UseGuards } from '@nestjs/common';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 import { RolesGuard } from '../auth/guards/roles.guard';
-import { ApiBearerAuth } from '@nestjs/swagger';
+import { AuthenticatedUser } from '../auth/interfaces/authenticated-user.interface';
 import { UserRole } from './enums/user-role.enum';
 
 @ApiBearerAuth()
@@ -72,8 +75,9 @@ export class UsersController {
   findAll(
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page: number,
     @Query('limit', new DefaultValuePipe(10), ParseIntPipe) limit: number,
+    @CurrentUser() currentUser: AuthenticatedUser,
   ): Promise<PaginatedUsersResponseDto> {
-    return this.usersService.findAll(page, limit);
+    return this.usersService.findAll(page, limit, currentUser);
   }
 
   @Get(':id')
@@ -139,14 +143,18 @@ export class UsersController {
   @ApiConflictResponse({
     description: 'A user with this email already exists',
   })
+  @ApiForbiddenResponse({
+    description: 'You can only update your own account unless you are an admin',
+  })
   @ApiNotFoundResponse({
     description: 'User not found',
   })
   update(
     @Param('id', new ParseUUIDPipe()) id: string,
     @Body() updateUserDto: UpdateUserDto,
+    @CurrentUser() currentUser: AuthenticatedUser,
   ): Promise<UserResponseDto> {
-    return this.usersService.update(id, updateUserDto);
+    return this.usersService.update(id, updateUserDto, currentUser);
   }
 
   @Delete(':id')
