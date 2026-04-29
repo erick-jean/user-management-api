@@ -43,6 +43,13 @@ export class AuthService {
       throw new UnauthorizedException('Invalid credentials');
     }
 
+    await this.prisma.user.update({
+      where: { id: user.id },
+      data: {
+        lastLogin: new Date(),
+      },
+    });
+
     const payload = {
       sub: user.id,
       email: user.email,
