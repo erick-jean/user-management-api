@@ -38,7 +38,17 @@ type UserListItem = Prisma.UserGetPayload<{
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create(createUserDto: CreateUserDto): Promise<UserResponseDto> {
+  async create(
+    createUserDto: CreateUserDto,
+    currentUser: AuthenticatedUser,
+  ): Promise<UserResponseDto> {
+    if (
+      createUserDto.role === UserRole.ADMIN &&
+      currentUser.role !== UserRole.ADMIN
+    ) {
+      throw new ForbiddenException('Only admins can create admin users');
+    }
+
     const existingUser = await this.prisma.user.findUnique({
       where: { email: createUserDto.email },
       select: { id: true },

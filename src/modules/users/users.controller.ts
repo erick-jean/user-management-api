@@ -110,8 +110,6 @@ export class UsersController {
   }
 
   @Post()
-  @Roles(UserRole.ADMIN)
-  @UseGuards(JwtAuthGuard, RolesGuard)
   @ApiOperation({
     summary: 'Create user',
     description: 'Creates a new user in the system',
@@ -126,8 +124,14 @@ export class UsersController {
   @ApiConflictResponse({
     description: 'A user with this email already exists',
   })
-  create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
-    return this.usersService.create(createUserDto);
+  @ApiForbiddenResponse({
+    description: 'Only admins can create admin users',
+  })
+  create(
+    @Body() createUserDto: CreateUserDto,
+    @CurrentUser() currentUser: AuthenticatedUser,
+  ): Promise<UserResponseDto> {
+    return this.usersService.create(createUserDto, currentUser);
   }
 
   @Patch(':id')
